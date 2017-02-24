@@ -50,7 +50,9 @@ hit refresh until you end up in an active one.
 
 
 ### VERY IMPORTANT
-If you see a cell with the name `teAm eXtreMe++` it most likely will be me - please don't eat me!!!
+If you see a cell with the name `teAm eXtreMe++` it most likely will be me - please don't eat me!!!  
+Also, if I team with you I will not trick you and eat you as soon as I can, but if I think that you are trying
+to eat me, I will eat you if I still can!
 
 You can find me mosg of the time in this room: [http://agarly.com/k2ByX](http://agarly.com/k2ByX)
 
