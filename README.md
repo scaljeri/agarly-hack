@@ -38,6 +38,12 @@ I always get this spam-tab in an epic fight. And this new tab has dialogs so it 
 and when you finally do, you might already lost the fight you were in. So, I made sure that this is not happening 
 anymore.
 
+  6. Automatic start  
+  TODO
+  
+  7. Split moves  
+  TODO
+
 ### Setup
 I've tested this hack only with chrome, because chromes runs the game very well.   
 First go to [agarly.com](http://agarly.com). Now, when the page is loaded open the console (alt + cammand + j) 
