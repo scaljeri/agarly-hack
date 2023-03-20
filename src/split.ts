@@ -21,7 +21,7 @@ export class Split extends BaseAction {
     public max(isDelay = true): void {
 
         if (isDelay) {
-            this.timeoutId = setTimeout(() => {
+            this.timeoutId = window.setTimeout(() => {
                 this.times(8);
             }, 200);
         } else {
@@ -35,7 +35,7 @@ export class Split extends BaseAction {
         this.stop();
         this.up({keyCode: 32});
 
-        this.id = setInterval(() => {
+        this.id = window.setInterval(() => {
             this.action();
 
             if (++count > amount) {

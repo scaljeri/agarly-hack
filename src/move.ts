@@ -87,7 +87,7 @@ export class Move {
 
         const center = this.getCenter();
 
-        this.id = setInterval(() => {
+        this.id = window.setInterval(() => {
             this.doMove(
                 center.x + MAX_VAL * dirX,
                 center.y + MAX_VAL * dirY

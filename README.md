@@ -1,4 +1,6 @@
-### Agary.com
+### Agarly.com
+
+Agarly.com is no more, but https://agar.rs/web/10 seems provide the same game, except that this hack is not working!!!
 
 Everybody knows [agar.io](http://agar.io/) and many people play the game, because its a great game. But
 the game requires a lot of patience before the real action happens, and you can start eating others. It

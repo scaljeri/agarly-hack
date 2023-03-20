@@ -9,9 +9,10 @@
     "build": "tsc && browserify src/index.js -o ./dist/build.js"
   },
   "dependencies": {
-    "typescript": "^3.2.2"
+    "typescript": "^5.0.2"
   },
   "devDependencies": {
+    "@types/node": "^18.15.3",
     "browserify": "^16.2.3"
   }
 }

@@ -3,7 +3,7 @@ import { Split } from './split';
 export class TrickSplit extends Split {
     run(sequence: () => void) {
         let count = 0;
-        this.id = setInterval(() => {
+        this.id = window.setInterval(() => {
             if (++count > 5) {
                 this.stop();
             }
@@ -25,7 +25,7 @@ export class TrickSplit extends Split {
     }
 
     private delayAction(): void {
-        this.timeoutId = setTimeout(() => {
+        this.timeoutId = window.setTimeout(() => {
             this.action();
         }, 100);
 
