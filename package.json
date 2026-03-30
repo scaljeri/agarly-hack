@@ -6,7 +6,7 @@
   "author": "Lucas Calje <lucas@calje.eu>",
   "license": "MIT",
   "scripts": {
-    "build": "tsc && browserify src/index.js -o ./dist/build.js"
+    "build": "tsc && browserify dist/index.js -o dist/build.js"
   },
   "dependencies": {
     "typescript": "^5.0.2"

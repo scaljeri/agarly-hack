@@ -1,0 +1,45 @@
+{
+  "name": "Dev Env",
+  "containerUser": "root",
+  "remoteUser": "root",
+  "build": {
+    "dockerfile": "ContainerFile"
+  },
+  "workspaceFolder": "/workspace",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-vscode.vscode-typescript-next",
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  },
+  "mounts": [
+    // "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind",
+    // "source=${env:HOME}/.kube,target=/home/vscode/.kube,type=bind",
+    // "source=${env:HOME}/my-private-key-gpg.asc,target=/home/vscode/my-private-key-gpg.asc,type=bind",
+    // "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    "source=${localEnv:HOME}/dev/bin,target=/root/bin,type=bind",
+    "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind",
+    "source=${env:HOME}/.kube,target=/root/.kube,type=bind",
+    "source=${env:HOME}/my-private-key-gpg.asc,target=/root/my-private-key-gpg.asc,type=bind",
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+  ],
+  // 🔥 Nodig zodat gpg-agent goed werkt
+  "containerEnv": {
+    "GPG_TTY": "tty",
+    "GIT_AUTHOR_NAME": "Lucas Calje",
+    "GIT_AUTHOR_EMAIL": "lucas@calje.eu",
+    "GIT_COMMITTER_NAME": "Lucas Calje",
+    "GIT_COMMITTER_EMAIL": "lucas@calje.eu"
+  },
+  // "postStartCommand": "sudo gpg --import /home/vscode/my-private-key-gpg.asc || true"
+  // "postStartCommand": "chmod 600 /home/vscode/my-private-key-gpg.asc && gpg --import /home/vscode/my-private-key-gpg.asc || true"
+  // "postStartCommand": "sudo gpg --import /home/vscode/my-private-key-gpg.asc || true",
+  // "overrideCommand": false
+  // "postStartCommand": "echo test"
+  "postStartCommand": "rm -rf ~/.gnupg && mkdir -p ~/.gnupg && chmod 700 ~/.gnupg && gpg --import ~/my-private-key-gpg.asc || true"
+
+}

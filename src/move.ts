@@ -1,100 +1,103 @@
-interface FakeMouseMoveEvent {
-    clientX: number;
-    clientY: number;
-}
+import { Point } from "./types";
+import { BaseAction } from "./utils/basic-action";
+import { Marker } from "./utils/marker";
+import { LineProjector } from "./utils/line-projector";
 
-interface Center {
-    x: number,
-    y: number
-}
-
-const CANVAS = document.querySelector('canvas');
 const MAX_VAL = 1000000;
 
-export class Move {
-    private id: number;
-    private rico: number;
-    private mx: number;
-    private my: number;
-    private b: number;
+export class Move extends BaseAction {
+    // mouseX = 0;
+    // mouseY = 0;
 
-    constructor(private handler: (e: FakeMouseMoveEvent) => void) {
-        CANVAS.addEventListener('mousemove', e => {
-            const c = this.getCenter();
+    private projector = new LineProjector();
 
-            this.mx = e.clientX;
-            this.my = e.clientY;
+    stepperAMarker = new Marker('orange');
+    stepperBMarker = new Marker('white');
 
-            this.rico = (e.clientY - c.y) / (e.clientX - c.x);
-            this.b = e.clientY - this.rico * e.clientX;
-        });
+    constructor() {
+        super();
+        this.registerMouseMoveHandler(this.mouseMovedHandler);
     }
 
-    stop(): void {
-        clearInterval(this.id);
-        this.id = null;
+    /** Mouse move handler: update mouse positie */
+    private mouseMovedHandler = (e: MouseEvent) => {
+        this.mouseX = e.clientX;
+        this.mouseY = e.clientY;
     }
 
-    isRunning(): boolean {
-        return !!this.id;
+    /** Huidige muispositie */
+    getMousePosition(): Point {
+        return { x: this.mouseX, y: this.mouseY };
     }
 
-    toCenter(): void {
+    /** Center van het canvas of spelobject */
+    getCenter(offset = 0): Point {
+        return { x: BaseAction.CANVAS.width / 2, y: BaseAction.CANVAS.height / 2 };
+    }
+
+    /** Initieer richting projector bij start van een actie */
+    initDirection(): void {
         const center = this.getCenter();
-
-        this.doMove(center.x, center.y);
+        const pointer = this.getMousePosition();
+        this.projector.setDirection(center, pointer);
     }
 
+    /** Move naar een punt op een offset langs de opgeslagen richting */
+    toCenter(offset = 0): void {
+        const center = this.getCenter();
+        const target = this.projector.getOffsetPoint(center, offset);
+        this.moveMouse(target.x, target.y);
+    }
+
+    /** Move ver in de richting van de projector (infinity) */
     toInfinity(): void {
         const center = this.getCenter();
+        const dir = this.projector.getDirection();
 
-        const dirX = center.x > this.mx ? -1 : 1;
-        const x = dirX * MAX_VAL;
-        const y = this.rico * x + this.b;
+        const MAX_MOVE = 10000; // kan aangepast worden aan je canvas
+        const x = center.x + dir.x * MAX_MOVE;
+        const y = center.y + dir.y * MAX_MOVE;
 
-        this.doMove(x, y);
+        this.moveMouse(x, y);
     }
 
-    getCenter(): Center {
-        return {x: CANVAS.width / 2, y: CANVAS.height / 2};
-    }
-
-    private doMove(x: number, y: number): void {
-        this.handler({clientX: x, clientY: y});
-    }
-
+    /** Beweeg in een specifieke richting */
     to(dirX: number, dirY: number): void {
-        this.doMove(dirX * MAX_VAL, dirY * MAX_VAL);
+        this.moveMouse(dirX * MAX_VAL, dirY * MAX_VAL);
     }
 
+    /** Generiek sequentieel bewegen links/rechts */
     getSequence(): () => void {
         const center = this.getCenter();
         let count = 1;
 
         return () => {
             const dir = (++count % 2) * 2 - 1;
-
-            this.doMove(
+            this.moveMouse(
                 center.x + MAX_VAL * dir,
-                center.y + MAX_VAL);
-
-        }
+                center.y + MAX_VAL
+            );
+        };
     }
 
+    /** Freeze beweging: beweeg naar vier hoeken rondom het centrum */
     freeze(): void {
-        let dirX = 0;
-        let dirY = 0;
-
         const center = this.getCenter();
 
-        this.id = window.setInterval(() => {
-            this.doMove(
-                center.x + MAX_VAL * dirX,
-                center.y + MAX_VAL * dirY
-            );
+        const positions = [
+            { x: -MAX_VAL, y: -MAX_VAL },
+            { x: MAX_VAL, y: -MAX_VAL },
+            { x: MAX_VAL, y: MAX_VAL },
+            { x: -MAX_VAL, y: MAX_VAL }
+        ];
 
-            dirX = dirX === 1 ? -1 : dirX + 1;
-            dirY = dirY === 1 ? -1 : dirY + 1;
-        }, 20);
+        let i = 0;
+
+        BaseAction.HEARTBEAT.start(async () => {
+            const p = positions[i];
+            this.moveMouse(center.x + p.x, center.y + p.y);
+            i = (i + 1) % 4;
+            return true;
+        }, { beat: 50 });
     }
 }

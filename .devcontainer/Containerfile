@@ -1,0 +1,128 @@
+FROM mcr.microsoft.com/devcontainers/base:ubuntu
+
+############################
+# Base tooling
+############################
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    ca-certificates \
+    build-essential \
+    gnupg \
+    software-properties-common \
+    python3 python3-pip python3-venv \
+    fonts-powerline \
+    lsd eza \
+    && rm -rf /var/lib/apt/lists/*
+
+###########
+# Node.js #
+###########
+RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
+    && apt-get update \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+#################
+# kubectl + k9s #
+#################
+RUN ARCH=$(dpkg --print-architecture) \
+    && curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/${ARCH}/kubectl" \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+    && rm kubectl \
+    && curl -sS -L "https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_${ARCH}.tar.gz" -o /tmp/k9s.tgz \
+    && tar -xzf /tmp/k9s.tgz -C /tmp \
+    && install -o root -g root -m 0755 /tmp/k9s /usr/local/bin/k9s \
+    && rm -rf /tmp/k9s /tmp/k9s.tgz
+
+#################
+# Helm
+#################
+RUN curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+########################
+# Docker CLI
+########################
+RUN groupadd -f docker \
+    && usermod -aG docker vscode \
+    && apt-get update \
+    && apt-get install -y ca-certificates curl gnupg \
+    && install -m 0755 -d /etc/apt/keyrings \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+        | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
+    && chmod a+r /etc/apt/keyrings/docker.gpg \
+    && echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+      https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo $UBUNTU_CODENAME) stable" \
+      > /etc/apt/sources.list.d/docker.list \
+    && apt-get update \
+    && apt-get install -y docker-ce-cli \
+    && rm -rf /var/lib/apt/lists/*
+
+#################
+# Powerlevel10k
+#################
+RUN git clone --depth=1 \
+    https://github.com/romkatv/powerlevel10k.git \
+    /root/.oh-my-zsh/custom/themes/powerlevel10k
+
+#################
+# Zsh configuration
+#################
+
+# 1. Theme activeren
+RUN sed -i 's|^ZSH_THEME=.*|ZSH_THEME="powerlevel10k/powerlevel10k"|' /root/.zshrc
+
+# 2. Plugins minimaliseren (voorkomt alias-ruis)
+RUN sed -i 's|^plugins=.*|plugins=(git)|' /root/.zshrc
+
+# 3. Powerlevel10k lean preset
+RUN curl -fsSL \
+  https://raw.githubusercontent.com/romkatv/powerlevel10k/master/config/p10k-lean.zsh \
+  -o /root/.p10k.zsh
+
+# 4. Custom config NA oh-my-zsh
+RUN mkdir -p /root/bin \
+    && sed -i '1iexport PATH="/root/bin:$PATH"' /root/.zshrc
+
+RUN cat <<'EOF' >> /root/.zshrc
+
+# ---- Powerlevel10k ----
+[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+
+# ---- GNU ls (compatibel, met kleur) ----
+# alias ls='ls --color=auto'
+
+# ---- eza / lsd shortcuts ----
+# unalias l ll la lla lt 2>/dev/null || true
+
+# https://gist.github.com/AppleBoiy/04a249b6f64fd0fe1744aff759a0563b
+# alias ls='eza --color=always --group-directories-first --icons'
+# alias ll='eza -la --icons --octal-permissions --sort=modified'
+# alias l='eza -bGF --header --git --color=always --group-directories-first --icons --sort=modified'
+# alias llm='eza -lh --header --git --sort=modified --color=always --group-directories-first --icons' 
+# alias la='eza --long --all --group --group-directories-first --sort=modified'
+# alias lx='eza -lbhHigUmuSa@ --time-style=long-iso --git --color-scale --color=always --group-directories-first --icons'
+
+# alias lS='eza -1 --color=always --group-directories-first --icons'
+# alias lt='eza --tree --level=2 --color=always --group-directories-first --icons'
+# alias l.="eza -a | grep -E '^\.'"
+
+# ---- Kubernetes aliases ----
+alias k='kubectl'
+alias kr='kubectl --server=https://localhost:26443'
+alias kt='ssh -f -N -L 26443:beast1:6443 luca@calje.it'
+
+kc() {
+  kubectl config set-context --current --namespace="$1"
+}
+
+EOF
+
+#################
+# Default shell
+#################
+RUN chsh -s /usr/bin/zsh root \
+    && chsh -s /usr/bin/zsh vscode

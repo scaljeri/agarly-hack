@@ -1,3 +1,6 @@
+# Update: https://tricksplit.io/
+TODO
+
 ### Agarly.com
 
 Agarly.com is no more, but https://agar.rs/web/10 seems provide the same game, except that this hack is not working!!!
@@ -6,7 +9,7 @@ Everybody knows [agar.io](http://agar.io/) and many people play the game, becaus
 the game requires a lot of patience before the real action happens, and you can start eating others. It
 is almost impossible to beat someone twice as big as you. The main issue is the merge time of the cells.
 
-Well, this is where [agary.com](http://agarly.com) jumps in, its a variant of agar.io in which the merge
+Well, this is where [agarly.com](http://agarly.com) jumps in, its a variant of agar.io in which the merge
 time is zero. Which results in an active game right from the start. It is now possible to beat 
 someone ten times times or even bigger then you are. 
 
